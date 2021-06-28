@@ -3,17 +3,17 @@ const Board = require('./Board');
 let currentGameId = 1;
 
 class Game {
-    constructor({ playerName, maxDuration }) {
+    constructor({ playerName, maxGameDuration }) {
         // Id de la partie en cours
         this.id = currentGameId;
-        // Instance de Board, représentant l'état du plateau
+        // Instance de Board, représentant l'état du plateau de jeu
         this.Board = new Board();
         // Timestamp représentant la date de début de partie
         this.startedAt = Date.now();
         // Timestamp représentant la date de fin de partie
         this.endedAt = 0;
-        // Durée maximale de la partie, en secondes
-        this.maxDuration = maxDuration;
+        // Durée maximale de la partie, en millisecondes
+        this.maxGameDuration = maxGameDuration;
         // Mot de passe à fournir pour jouer
         this.password = this.generatePassword();
         // Nom du joueur
@@ -84,7 +84,7 @@ class Game {
 
         if (
             this.Board.areAllCardsGuessed() &&
-            gameDuration <= this.maxDuration * 1000
+            gameDuration <= this.maxGameDuration
         ) {
             playerWon = true;
         }
@@ -115,7 +115,16 @@ class Game {
     }
 
     /**
-     * Génère un mot de passe à fournir pour réveler les cartes et terminer la partie
+     * Renvoie les ids des cartes temporairement révélées
+     */
+    getTemporaryRevealedCardIds() {
+        return this.temporaryRevealedCards.map(
+            card => card.id
+        )
+    }
+
+    /**
+     * Génère un mot de passe à fournir pour jouer
      */
     generatePassword() {
         // On génère un nombre à virgule du genre "0.123456"

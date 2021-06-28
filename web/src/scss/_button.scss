@@ -1,0 +1,14 @@
+button {
+  min-width: 80px;
+  min-height: 40px;
+  padding: 12px 16px;
+  background-color: #181b21;
+  color: #f6f6fe;
+  border: none;
+  outline: none;
+}
+
+.buttons-row {
+  display: flex;
+  justify-content: flex-end;
+}

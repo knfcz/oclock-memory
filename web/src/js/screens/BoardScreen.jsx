@@ -1,5 +1,6 @@
 import React from 'react';
 import Board from '../components/Board';
+import RemainingTimeIndicator from "../components/RemainingTimeIndicator";
 
 const propTypes = {};
 
@@ -7,16 +8,19 @@ const defaultProps = {};
 
 const BoardScreen = props => {
     const revealCard = async cardId => {
-        console.log('revvv', cardId);
-
         await props.revealCard(cardId);
     };
 
     return (
-        <Board
-            cards={Object.values(props.cardsById)}
-            onCardClick={revealCard}
-        />
+        <>
+            <RemainingTimeIndicator duration={props.maxGameDuration} />
+
+            <Board
+                disabled={props.boardDisabled}
+                cards={props.cards}
+                onCardClick={revealCard}
+            />
+        </>
     );
 };
 

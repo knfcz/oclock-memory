@@ -1,7 +1,10 @@
-import GameContainer from "./components/GameContainer";
+import GameContainer from './components/GameContainer';
 
 const App = () => (
-    <GameContainer/>
+    <>
+        <h1>Memory: Version fruitée</h1>
+        <GameContainer />
+    </>
 );
 
 export default App;

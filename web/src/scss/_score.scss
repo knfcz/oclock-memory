@@ -1,0 +1,19 @@
+.scores-list {
+  padding: 16px 0;
+
+  h2 {
+    margin: 0;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    width: 100%;
+  }
+
+  li {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
+}

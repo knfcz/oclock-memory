@@ -2,10 +2,10 @@
 const SERVER_PORT = 3001;
 
 // Nombre de paires
-const GAME_PAIRS_COUNT = 8;
+const GAME_PAIRS_COUNT = 18;
 
-// Durée max d'une partie, en secondes
-const GAME_MAX_DURATION = 120;
+// Durée max d'une partie, en millisecondes
+const GAME_MAX_DURATION = 120 * 1000;
 
 // Informations de la base de donnée
 const DB_USER = 'root';

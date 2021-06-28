@@ -23,8 +23,8 @@ class Board {
             valueIterator <= GAME_PAIRS_COUNT;
             valueIterator++
         ) {
-            // Comme il y a deux cartes par valeur,
-            // on ajoute deux entrées à notre tableau
+            // Comme il y a deux cartes pour chaque valeurs,
+            // on ajoute la valeur deux fois au tableau
             remainingValues.push(valueIterator);
             remainingValues.push(valueIterator);
         }
@@ -41,7 +41,7 @@ class Board {
 
             // Puis, nous ajoutons à notre plateau de jeu une carte qui aura cette valeur
             // Nous représentons chaque carte par un objet,
-            // cela nous permet de stocker, en plus de la valeur, l'état de la carte(devinée, révélée, etc...)
+            // cela nous permet de stocker, en plus de la valeur, l'état de la carte (devinée, révélée, etc...)
             this.cardsById[currentCardId] = {
                 id: currentCardId,
                 guessed: false,
@@ -65,6 +65,7 @@ class Board {
     revealCard(cardId) {
         const card = this.cardsById[cardId];
 
+        // Si la carte n'existe pas ou est déjà visible, on ne fait rien
         if (!card || card.revealed || card.guessed) {
             return false;
         }
@@ -98,28 +99,28 @@ class Board {
 
     /**
      * Renvoie les cartes visibles, indexées par id
-     * si une carte n'est pas visible, on considère que sa valeur est  0
+     * si une carte n'est pas visible, on considère que sa valeur est 0
      */
     getVisibleCards() {
         const cardsList = Object.values(this.cardsById);
 
-        return cardsList.reduce((visibleCards, card) => {
+        // Ici, map() va générer un nouveau tableau en appelant notre callback sur toutes
+        // les cartes de notre liste et en stockant la valeurs renvoyées
+        return cardsList.map(card => {
             let cardValue = 0;
 
             if (card.revealed || card.guessed) {
                 cardValue = card.value;
             }
 
-            visibleCards[card.id] = {
+            return {
                 // Cette syntaxe nous permet de recopier les propriétés de l'objet card
                 // dans ce nouvel objet
                 ...card,
                 // la propriétée value sera re-écrite
                 value: cardValue,
             };
-
-            return visibleCards;
-        }, {});
+        });
     }
 
     /**
@@ -128,10 +129,9 @@ class Board {
     areAllCardsGuessed() {
         const cardsList = Object.values(this.cardsById);
 
-        return cardsList.reduce(
-            (areAllCardsGuessed, card) => areAllCardsGuessed && card.guessed,
-            true,
-        );
+        // every() renverra vrai si toutes les cartes de notre liste respectent ce prédicat
+        // (en gros, si notre callback renvoie vrai pour chaque carte)
+        return cardsList.every(card => card.guessed === true);
     }
 
     /**
@@ -140,9 +140,15 @@ class Board {
     getUnguessedCardsCount() {
         const cardsList = Object.values(this.cardsById);
 
+        // Ici, le callback sera appelé pour chaque élément de notre liste, et recevra:
+        // - count: valeur renvoyée par le callback lors de l'itération précédente
+        //          (pour la première itération, ça sera 0)
+        // - card: une carte de notre plateau de jeu
+        //
+        // reduce() retournera la valeur renvoyée par le callback lors de la dernière itération
         return cardsList.reduce((count, card) => {
             if (!card.guessed) {
-                return count + 1;
+                count += 1;
             }
 
             return count;

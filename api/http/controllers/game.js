@@ -2,17 +2,17 @@ const { GAME_MAX_DURATION } = require('../../config');
 const Game = require('../../services/Game');
 const Score = require('../../database/models/Score');
 const Storage = require('../../services/Storage');
-const { ERROR_CODE_CANNOT_CREATE_RESOURCE } = require('../../errorCodes');
+const isPlayerNameValid = require('../../utils/isPlayerNameValid');
 const { ERROR_CODE_INVALID_PARAMETERS } = require('../../errorCodes');
 
 /**
  * Crée une nouvelle partie
  */
-const start = async (request, response) => {
+const createGame = async (request, response) => {
     const playerName = request.body.playerName;
 
     // Si le nom du joueur est invalide, on rejette
-    if (!playerName) {
+    if (!playerName || !isPlayerNameValid(playerName)) {
         response.status(400).json({
             errorCode: ERROR_CODE_INVALID_PARAMETERS,
         });
@@ -22,7 +22,7 @@ const start = async (request, response) => {
 
     const NewGame = new Game({
         playerName,
-        maxDuration: GAME_MAX_DURATION,
+        maxGameDuration: GAME_MAX_DURATION,
     });
 
     // On enregistre notre instance de jeu en mémoire
@@ -31,45 +31,71 @@ const start = async (request, response) => {
     response.json({
         cards: NewGame.getCards(),
         gameId: NewGame.id,
+        maxGameDuration: NewGame.maxGameDuration,
         password: NewGame.password,
     });
 };
 
 /**
- * Termine une partie,
- * si les conditions de victoire sont remplies, enregistre le score
+ * Révèle la valeur d'une carte de la partie demandée,
+ * si toutes les cartes sont devinées, on met fin à la partie
  */
-const end = async (request, response) => {
+const revealCard = async (request, response) => {
     const gameId = request.params.gameId;
-    const gameStorageKey = `game-${gameId}`;
+    const cardId = request.params.cardId;
 
     // On récupère l'instance de jeu correspondante en mémoire
-    const CurrentGame = Storage.get(gameStorageKey);
+    const CurrentGame = Storage.get(`game-${gameId}`);
 
-    const gameData = CurrentGame.end();
+    // On marque la carte comme révélée, et on la récupère
+    const card = CurrentGame.revealCard(cardId);
 
-    try {
-        // Si le joueur a gagné, on enregistre le score en base de donnée
-        if (gameData.playerWon) {
-            await Score.create({
-                gameDuration: gameData.gameDuration,
-                playerName: CurrentGame.playerName,
-            });
-        }
-    } catch (e) {
-        response.status(500).json({
-            errorCode: ERROR_CODE_CANNOT_CREATE_RESOURCE,
-            resource: 'score',
+    // Si la carte n'existe pas, on renvoie un erreur 404
+    if (!card) {
+        response.status(404).json({
+            errorCode: ERROR_CODE_CARD_INVALID,
         });
+
+        return;
     }
 
-    // On supprime l'instance de jeu en mémoire
-    Storage.unset(gameStorageKey);
+    let endGameData = {};
 
-    response.json(gameData);
+    if (CurrentGame.Board.getUnguessedCardsCount() === 0) {
+        endGameData = CurrentGame.end();
+
+        try {
+            // On supprime l'instance de jeu en mémoire
+            Storage.unset(`game-${CurrentGame.id}`);
+
+            // Si le joueur a gagné, on enregistre le score en base de donnée
+            if (endGameData.playerWon) {
+                await Score.create({
+                    gameDuration: endGameData.gameDuration,
+                    playerName: CurrentGame.playerName,
+                });
+            }
+        } catch (e) {
+            response.status(500).json({
+                errorCode: ERROR_CODE_CANNOT_CREATE_RESOURCE,
+                resource: 'score',
+            });
+
+            return;
+        }
+    }
+
+    // On renvoie le nouveau plateau de jeu et les éventuelles infos
+    // de fin de partie
+    response.json({
+        cards: CurrentGame.getCards(),
+        remainingCardsCount: CurrentGame.Board.getUnguessedCardsCount(),
+        temporaryRevealedCardIds: CurrentGame.getTemporaryRevealedCardIds(),
+        endGameData,
+    });
 };
 
 module.exports = {
-    start,
-    end,
+    createGame,
+    revealCard,
 };

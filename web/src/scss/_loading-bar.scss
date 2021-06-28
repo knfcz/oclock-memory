@@ -1,0 +1,22 @@
+.loading-bar-container {
+  height: 40px;
+  width: 100%;
+  position: relative;
+  text-align: center;
+  line-height: 40px;
+
+  span {
+    position: absolute;
+    font-weight: bold;
+    z-index: 5;
+  }
+}
+
+.loading-bar {
+  position: absolute;
+  height: 100%;
+  background-color: #cbceda;
+  transition: all 1s linear;
+  z-index: 1;
+
+}

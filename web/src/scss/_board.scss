@@ -1,0 +1,50 @@
+// Cette "fonction" nous permet de générer des règles css en fonction d'un nombre de paires
+@mixin cards-classes($pairs-count) {
+    @for $i from 1 to $pairs-count + 1 {
+        &[data-value='#{$i}'] {
+            background-image: url('../images/fruits.png');
+            background-position: 0 #{($i * 100) - 100}px;
+        }
+    }
+
+    &[data-value='0'] {
+        background-image: none;
+        background-color: #cbceda;
+
+        &:after {
+            content: '?';
+            margin: 0 auto;
+            text-align: center;
+            width: 100%;
+            font-size: 4em;
+        }
+    }
+}
+
+.board {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    li {
+        height: 100px;
+        width: 100px;
+    }
+
+    button {
+        height: 100%;
+        width: 100%;
+        background-color: unset;
+        cursor: pointer;
+
+        &:disabled {
+            cursor: unset;
+        }
+
+        // On ajoute les règles pour les différentes valeurs possibles
+        @include cards-classes(18);
+    }
+}

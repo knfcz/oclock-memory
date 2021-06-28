@@ -1,29 +1,19 @@
 import React from 'react';
+import Card from './Card';
 
-const Board = props => {
-    const onCardClick = cardId => {
-        props.onCardClick(cardId);
-    };
-
-    return (
-        <div className={'board'}>
-            <ul>
-                {props.cards.map(card => {
-                    return (
-                        <li
-                            className={'card'}
-                            data-value={card.value}
-                            onClick={() => onCardClick(card.id)}
-                        >
-                            <button disabled={card.guessed || card.revealed}>
-                                {card.value}
-                            </button>
-                        </li>
-                    );
-                })}
-            </ul>
-        </div>
-    );
-};
+const Board = props => (
+    <ul className={'board'}>
+        {/* On transforme notre liste de cartes en une liste de composants à afficher */}
+        {props.cards.map(card => (
+            <li key={card.id} className={'card'}>
+                <Card
+                    card={card}
+                    disabled={props.disabled}
+                    onClick={props.onCardClick}
+                />
+            </li>
+        ))}
+    </ul>
+);
 
 export default Board;

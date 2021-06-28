@@ -1,1 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Balsamiq+Sans&family=Roboto&display=swap');
 
+@import 'button';
+@import 'board';
+@import 'score';
+@import 'form';
+@import 'loading-bar';
+
+body {
+    background-image: url('../images/bg.png');
+    font-family: 'Roboto', sans-serif;
+}
+
+h1,
+h2 {
+    font-family: 'Balsamiq Sans', sans-serif;
+}
+
+h1 {
+    text-align: center;
+}
+
+#root {
+    margin: 0 auto;
+    width: 1000px;
+}
+
+.game-container {
+    background: #f6f6fe;
+    padding: 16px;
+    border-radius: 4px;
+}
+
+.color-red {
+    color: #d62e3e;
+}
